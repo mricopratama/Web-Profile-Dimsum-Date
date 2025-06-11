@@ -47,7 +47,7 @@ COPY . .
 RUN composer install --no-interaction --no-dev --optimize-autoloader
 
 # Build aset frontend
-RUN npm run build
+RUN npm run dev
 
 # Install Laravel Octane dengan server Swoole
 RUN php artisan octane:install --server=swoole --no-interaction
