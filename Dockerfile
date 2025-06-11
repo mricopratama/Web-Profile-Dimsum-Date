@@ -11,7 +11,7 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-FROM php:8.3-cli
+FROM php:8.3-cli as base
 
 RUN apt-get update && apt-get install -y \
     git \
@@ -38,12 +38,15 @@ RUN npm install --legacy-peer-deps && npm run build
 
 RUN php artisan octane:install --server=roadrunner --no-interaction
 
-RUN chown -R www-data:www-data storage bootstrap/cache \
-    && chmod -R 775 storage bootstrap/cache
-
 RUN php artisan config:cache
 RUN php artisan route:cache
 RUN php artisan view:cache
+
+RUN chown -R www-data:www-data .
+
+RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
+USER www-data
 
 EXPOSE 8000
 
