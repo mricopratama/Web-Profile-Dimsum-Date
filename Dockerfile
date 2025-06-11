@@ -25,22 +25,26 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Atur direktori kerja
 WORKDIR /var/www/html
 
-# Salin file-file dependensi terlebih dahulu untuk optimasi cache Docker
-COPY composer.json composer.lock ./
+# Salin file-file dependensi NPM terlebih dahulu untuk optimasi cache
 COPY package.json package-lock.json* ./
-
-# Jalankan 'composer update' untuk menyesuaikan dependensi dengan versi PHP 8.2
-# Ini akan membuat ulang composer.lock dengan versi paket yang kompatibel.
-# CATATAN: Praktik terbaik adalah menjalankan 'composer update' di lingkungan
-# pengembangan lokal Anda dan commit file composer.lock yang baru.
-RUN composer update --no-interaction --no-dev --optimize-autoloader
 
 # Install dependensi NPM
 RUN npm install --legacy-peer-deps
 
-# Salin sisa file aplikasi ke dalam direktori kerja
-# File yang sudah ada seperti composer.json tidak akan terpengaruh secara signifikan
+# Salin hanya composer.json untuk menginstal dependensi vendor
+COPY composer.json ./
+
+# HAPUS composer.lock yang lama karena tidak kompatibel dengan PHP 8.2
+# Kemudian jalankan composer install untuk membuat lock file baru yang sesuai
+RUN rm -f composer.lock && \
+    composer install --no-interaction --no-dev --no-scripts --optimize-autoloader
+
+# Salin sisa file aplikasi
 COPY . .
+
+# Jalankan kembali composer install. Ini akan berjalan cepat dan hanya
+# menjalankan post-install scripts (seperti artisan optimize) yang sebelumnya dilewati.
+RUN composer install --no-interaction --no-dev --optimize-autoloader
 
 # Build aset frontend
 RUN npm run build
@@ -61,6 +65,8 @@ USER www-data
 # Expose port yang akan digunakan oleh Octane
 EXPOSE 8000
 
+# Bersihkan cache config dan application cache sebagai langkah terakhir
+RUN php artisan config:clear && php artisan cache:clear
+
 # Perintah untuk menjalankan server Octane saat kontainer dijalankan
-# Menggunakan format exec untuk praktik terbaik
 CMD ["php", "artisan", "octane:start", "--server=swoole", "--host=0.0.0.0", "--port=8000"]
