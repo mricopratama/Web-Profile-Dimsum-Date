@@ -20,6 +20,8 @@ RUN php artisan octane:install --server=roadrunner --no-interaction
 RUN chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
+RUN chown -R www-data:www-data /var/www/html
+
 USER www-data
 
 EXPOSE 8000
