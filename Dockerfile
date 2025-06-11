@@ -1,5 +1,5 @@
 # Menggunakan base image PHP 8.3 CLI
-FROM php:8.3-cli
+FROM php:8.2-cli
 
 # Instalasi dependensi sistem, termasuk libbrotli-dev yang dibutuhkan oleh Swoole
 # dan ekstensi PHP yang umum digunakan untuk Laravel.
@@ -49,9 +49,6 @@ USER www-data
 
 # Expose port yang akan digunakan oleh Octane
 EXPOSE 8000
-
-# Bersihkan cache config dan application cache sebagai langkah terakhir
-RUN php artisan config:clear && php artisan cache:clear
 
 # Perintah untuk menjalankan server Octane saat kontainer dijalankan
 # Menggunakan format exec untuk praktik terbaik
