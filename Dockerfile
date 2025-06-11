@@ -36,6 +36,8 @@ RUN composer install --no-interaction --no-dev --optimize-autoloader
 
 RUN npm install --legacy-peer-deps && npm run build
 
+RUN php artisan octane:install --server=roadrunner --no-interaction
+
 RUN chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
