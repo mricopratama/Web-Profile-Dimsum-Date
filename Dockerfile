@@ -17,6 +17,11 @@ RUN npm install --legacy-peer-deps && npm run build
 
 RUN php artisan octane:install --server=roadrunner --no-interaction
 
+RUN php artisan config:cache
+RUN php artisan route:cache
+RUN php artisan view:cache
+RUN php artisan migrate --force
+
 RUN chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
