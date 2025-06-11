@@ -1,4 +1,4 @@
-# Menggunakan base image PHP 8.3 CLI
+# Menggunakan base image PHP 8.2 CLI
 FROM php:8.2-cli
 
 # Instalasi dependensi sistem, termasuk libbrotli-dev yang dibutuhkan oleh Swoole
@@ -25,14 +25,25 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Atur direktori kerja
 WORKDIR /var/www/html
 
-# Salin semua file aplikasi ke dalam direktori kerja
-COPY . .
+# Salin file-file dependensi terlebih dahulu untuk optimasi cache Docker
+COPY composer.json composer.lock ./
+COPY package.json package-lock.json* ./
 
-# Install dependensi Composer untuk produksi
+# Jalankan 'composer update' untuk menyesuaikan dependensi dengan versi PHP 8.2
+# Ini akan membuat ulang composer.lock dengan versi paket yang kompatibel.
+# CATATAN: Praktik terbaik adalah menjalankan 'composer update' di lingkungan
+# pengembangan lokal Anda dan commit file composer.lock yang baru.
 RUN composer update --no-interaction --no-dev --optimize-autoloader
 
-# Install dependensi NPM dan build aset frontend
-RUN npm install --legacy-peer-deps && npm run build
+# Install dependensi NPM
+RUN npm install --legacy-peer-deps
+
+# Salin sisa file aplikasi ke dalam direktori kerja
+# File yang sudah ada seperti composer.json tidak akan terpengaruh secara signifikan
+COPY . .
+
+# Build aset frontend
+RUN npm run build
 
 # Install Laravel Octane dengan server Swoole
 RUN php artisan octane:install --server=swoole --no-interaction
