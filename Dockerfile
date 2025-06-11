@@ -17,13 +17,11 @@ RUN npm install --legacy-peer-deps && npm run build
 
 RUN php artisan octane:install --server=roadrunner --no-interaction
 
-RUN php artisan config:cache
-RUN php artisan route:cache
-RUN php artisan view:cache
-RUN php artisan migrate --force
-
 RUN chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
+
+RUN curl -Ls https://github.com/roadrunner-server/roadrunner/releases/latest/download/roadrunner-linux-amd64.tar.gz \
+    | tar -xz -C /usr/local/bin && chmod +x /usr/local/bin/rr
 
 RUN chown -R www-data:www-data /var/www/html
 
@@ -31,4 +29,6 @@ USER www-data
 
 EXPOSE 8000
 
-CMD ["php", "artisan", "octane:start", "--host=0.0.0.0", "--port=8000"]
+RUN php artisan config:clear && php artisan cache:clear
+
+CMD php artisan octane:start --server=roadrunner --host=0.0.0.0 --port=8000
