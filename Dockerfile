@@ -1,5 +1,5 @@
 # Menggunakan base image PHP 8.2 CLI
-FROM php:8.2-cli
+FROM php:8.3-cli
 
 # Instalasi dependensi sistem, termasuk libbrotli-dev yang dibutuhkan oleh Swoole
 # dan ekstensi PHP yang umum digunakan untuk Laravel.
