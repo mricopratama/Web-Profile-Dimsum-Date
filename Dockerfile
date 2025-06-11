@@ -29,7 +29,7 @@ WORKDIR /var/www/html
 COPY . .
 
 # Install dependensi Composer untuk produksi
-RUN composer install --no-interaction --no-dev --optimize-autoloader
+RUN composer update --no-interaction --no-dev --optimize-autoloader
 
 # Install dependensi NPM dan build aset frontend
 RUN npm install --legacy-peer-deps && npm run build
