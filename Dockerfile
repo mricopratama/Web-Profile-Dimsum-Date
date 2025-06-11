@@ -11,7 +11,7 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-FROM php:8.3-cli as base
+FROM php:8.3-cli
 
 RUN apt-get update && apt-get install -y \
     git \
@@ -34,20 +34,4 @@ COPY . .
 
 RUN composer install --no-interaction --no-dev --optimize-autoloader
 
-RUN npm install --legacy-peer-deps && npm run build
-
-RUN php artisan octane:install --server=roadrunner --no-interaction
-
-RUN php artisan config:cache
-RUN php artisan route:cache
-RUN php artisan view:cache
-
-RUN chown -R www-data:www-data .
-
-RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
-
-USER www-data
-
-EXPOSE 8000
-
-CMD ["php", "artisan", "octane:start", "--host=0.0.0.0", "--port=8000"]
+RUN php artisan db:show
